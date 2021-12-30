@@ -61,6 +61,17 @@ parser.add_argument(
     required=True,
     help='<Required> The list of data directories. e.g., data/train')
 
+parser.add_argument(
+    '--classes',
+    type=str,
+    default='angry,bored',
+    help='Classes would be trained')
+parser.add_argument(
+    '--clip_duration_ms',
+    type=int,
+    default=1000,
+    help='Clip duration in ms')
+
 args = parser.parse_args()
 parser.print_help()
 print('input args: ', args)
@@ -73,11 +84,12 @@ if __name__ == '__main__':
   output_representation = args.output_representation
   sample_rate = args.sample_rate
   batch_size = args.batch_size
-  classes = get_classes(wanted_only=True)
+#   classes = get_classes(wanted_only=True)
+  classes = [x.strip() for x in args.classes.split(',')]
   model_settings = prepare_model_settings(
       label_count=len(prepare_words_list(classes)),
       sample_rate=sample_rate,
-      clip_duration_ms=1000,
+      clip_duration_ms=args.clip_duration_ms,
       window_size_ms=30.0,
       window_stride_ms=10.0,
       dct_coefficient_count=80,
