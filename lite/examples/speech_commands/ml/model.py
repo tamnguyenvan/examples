@@ -57,7 +57,7 @@ def conv_1d_time_stacked_model(input_size=16000, num_classes=11):
   """
   input_layer = Input(shape=[input_size])
   x = input_layer
-  x = Reshape([800, 20])(x)
+  x = Reshape([800, input_size // 800])(x)
   x = PreprocessRaw(x)
 
   def _reduce_conv(x, num_filters, k, strides=2, padding='valid'):
@@ -113,6 +113,7 @@ def conv_1d_time_stacked_model(input_size=16000, num_classes=11):
 
 
 def speech_model(model_type, input_size, num_classes=11, *args, **kwargs):
+  print('input_size', input_size)
   if model_type == 'conv_1d_time_stacked':
     return conv_1d_time_stacked_model(input_size, num_classes)
   else:
