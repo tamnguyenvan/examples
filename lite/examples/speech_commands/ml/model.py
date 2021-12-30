@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 import keras
+import keras.backend as K
 from keras.layers import *
 from keras.regularizers import l2
 from keras.models import Model
