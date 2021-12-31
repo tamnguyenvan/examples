@@ -29,6 +29,23 @@ from model import speech_model, prepare_model_settings
 from generator import AudioProcessor, prepare_words_list
 from classes import get_classes
 from utils import data_gen
+import matplotlib.pyplot as plt
+
+
+def plot_hist(hist):
+    plt.subplot(121)
+    plt.plot(hist.epoch, hist.history['loss'], label='training')
+    plt.plot(hist.epoch, hist.history['val_loss'], label='validation')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+
+    plt.subplot(122)
+    plt.plot(hist.epoch, hist.history['categorical_accuracy'], label='training')
+    plt.plot(hist.epoch, hist.history['val_categorical_accuracy'], label='validation')
+    plt.xlabel('epoch')
+    plt.ylabel('accuracy')
+    plt.savefig('result.png')
+
 
 parser = argparse.ArgumentParser(description='set input arguments')
 
@@ -146,13 +163,13 @@ if __name__ == '__main__':
           monitor='val_categorical_accuracy',
           mode='max')
   ]
-  model.fit_generator(
+  hist = model.fit_generator(
       train_gen,
       steps_per_epoch=ap.set_size('training') // batch_size,
       epochs=100,
       verbose=1,
       callbacks=callbacks)
-
+  plot_hist(hist)
   eval_res = model.evaluate_generator(val_gen,
                                       ap.set_size('validation') // batch_size)
   print(eval_res)
