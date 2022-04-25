@@ -57,6 +57,12 @@ parser.add_argument(
     default=16000,
     help='Sample rate of audio')
 parser.add_argument(
+  '-epochs',
+  type=int,
+  default=10,
+  help='Number of epochs'
+)
+parser.add_argument(
     '-batch_size',
     action='store',
     dest='batch_size',
@@ -101,6 +107,7 @@ if __name__ == '__main__':
   output_representation = args.output_representation
   sample_rate = args.sample_rate
   batch_size = args.batch_size
+  epochs = args.epochs
 #   classes = get_classes(wanted_only=True)
   classes = [x.strip() for x in args.classes.split(',')]
   model_settings = prepare_model_settings(
@@ -166,7 +173,7 @@ if __name__ == '__main__':
   hist = model.fit_generator(
       train_gen,
       steps_per_epoch=ap.set_size('training') // batch_size,
-      epochs=100,
+      epochs=epochs,
       verbose=1,
       callbacks=callbacks)
   plot_hist(hist)
