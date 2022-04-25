@@ -128,11 +128,12 @@ if __name__ == '__main__':
       silence_percentage=13.0,
       unknown_percentage=60.0,
       validation_percentage=10.0,
-      testing_percentage=0.0,
+      testing_percentage=10.0,
       model_settings=model_settings,
       output_representation=output_representation)
   train_gen = data_gen(ap, sess, batch_size=batch_size, mode='training')
   val_gen = data_gen(ap, sess, batch_size=batch_size, mode='validation')
+  test_gen = data_gen(ap, sess, batch_size=batch_size, mode='testing')
 
   model = speech_model(
       'conv_1d_time_stacked',
@@ -149,12 +150,12 @@ if __name__ == '__main__':
     os.makedirs(checkpoints_path)
 
   callbacks = [
-      ConfusionMatrixCallback(
-          val_gen,
-          ap.set_size('validation') // batch_size,
-          wanted_words=prepare_words_list(get_classes(wanted_only=True)),
-          all_words=prepare_words_list(classes),
-          label2int=ap.word_to_index),
+      # ConfusionMatrixCallback(
+      #     val_gen,
+      #     ap.set_size('validation') // batch_size,
+      #     wanted_words=prepare_words_list(get_classes(wanted_only=True)),
+      #     all_words=prepare_words_list(classes),
+      #     label2int=ap.word_to_index),
       ReduceLROnPlateau(
           monitor='val_categorical_accuracy',
           mode='max',
@@ -170,13 +171,28 @@ if __name__ == '__main__':
           monitor='val_categorical_accuracy',
           mode='max')
   ]
-  hist = model.fit_generator(
+  print('=' * 20)
+  print('Training size: ', ap.set_size('training'))
+  print('Validation size: ', ap.set_size('validation'))
+  print(ap.set_size('validation') // batch_size)
+  hist = model.fit(
       train_gen,
       steps_per_epoch=ap.set_size('training') // batch_size,
       epochs=epochs,
+      validation_data=val_gen,
+      validation_steps=ap.set_size('validation') // batch_size,
       verbose=1,
       callbacks=callbacks)
   plot_hist(hist)
-  eval_res = model.evaluate_generator(val_gen,
-                                      ap.set_size('validation') // batch_size)
-  print(eval_res)
+  # eval_res = model.evaluate_generator(val_gen,
+  #                                     ap.set_size('validation') // batch_size)
+                                    
+  # print(eval_res)
+  test_loss, test_acc = model.evaluate_generator(
+    test_gen,
+    ap.set_size('testing') // batch_size
+  )
+  print(f'Testing loss: {test_loss:.4f} Testing accuracy: {test_acc:.4f}')
+
+  with open(f'{suffix}_l{test_loss}_acc{test_acc}.txt', 'wt') as f:
+    f.write('.')
