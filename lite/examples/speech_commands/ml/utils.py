@@ -60,7 +60,7 @@ def data_gen(audio_processor,
     offset += batch_size
     if offset > audio_processor.set_size(mode) - batch_size:
       offset = 0
-      print('\n[Ep:%03d: %s-mode]' % (ep_count, mode))
+      # print('\n[Ep:%03d: %s-mode]' % (ep_count, mode))
       ep_count += 1
     yield X, y
 
